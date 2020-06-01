@@ -21,7 +21,7 @@ UStreetMapComponent::UStreetMapComponent(const FObjectInitializer& ObjectInitial
 	  StreetMap(nullptr),
 	  CachedLocalBounds(ForceInit)
 {
-	// We make sure our mesh collision profile name is set to NoCollisionProfileName at initialization. 
+	// We make sure our mesh collision profile name is set to NoCollisionProfileName at initialization.
 	// Because we don't have collision data yet!
 	SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
 
@@ -57,7 +57,7 @@ FPrimitiveSceneProxy* UStreetMapComponent::CreateSceneProxy()
 		StreetMapSceneProxy = new FStreetMapSceneProxy( this );
 		StreetMapSceneProxy->Init( this, Vertices, Indices );
 	}
-	
+
 	return StreetMapSceneProxy;
 }
 
@@ -65,7 +65,7 @@ FPrimitiveSceneProxy* UStreetMapComponent::CreateSceneProxy()
 int32 UStreetMapComponent::GetNumMaterials() const
 {
 	// NOTE: This is a bit of a weird thing about Unreal that we need to deal with when defining a component that
-	// can have materials assigned.  UPrimitiveComponent::GetNumMaterials() will return 0, so we need to override it 
+	// can have materials assigned.  UPrimitiveComponent::GetNumMaterials() will return 0, so we need to override it
 	// to return the number of overridden materials, which are the actual materials assigned to the component.
 	return HasValidMesh() ? GetNumMeshSections() : GetNumOverrideMaterials();
 }
@@ -197,7 +197,7 @@ class UBodySetup* UStreetMapComponent::GetBodySetup()
 {
 	if (CollisionSettings.bGenerateCollision == true)
 	{
-		// checking if we have a valid body setup. 
+		// checking if we have a valid body setup.
 		// A new one is created only if a valid body setup is not found.
 		CreateBodySetupIfNeeded();
 		return StreetMapBodySetup;
@@ -255,24 +255,24 @@ void UStreetMapComponent::GenerateMesh()
 					RoadThickness = HighwayThickness;
 					RoadColor = HighwayColor;
 					break;
-					
+
 				case EStreetMapRoadType::MajorRoad:
 					RoadThickness = MajorRoadThickness;
 					RoadColor = MajorRoadColor;
 					break;
-					
+
 				case EStreetMapRoadType::Street:
 				case EStreetMapRoadType::Other:
 					break;
-					
+
 				default:
 					check( 0 );
 					break;
 			}
-			
+
 			for( int32 PointIndex = 0; PointIndex < Road.RoadPoints.Num() - 1; ++PointIndex )
 			{
-				AddThick2DLine( 
+				AddThick2DLine(
 					Road.RoadPoints[ PointIndex ],
 					Road.RoadPoints[ PointIndex + 1 ],
 					RoadZ,
@@ -282,7 +282,7 @@ void UStreetMapComponent::GenerateMesh()
 					MeshBoundingBox );
 			}
 		}
-		
+
 		TArray< int32 > TempIndices;
 		TArray< int32 > TriangulatedVertexIndices;
 		TArray< FVector > TempPoints;
@@ -293,7 +293,7 @@ void UStreetMapComponent::GenerateMesh()
 			// Building mesh (or filled area, if the building has no height)
 
 			// Triangulate this building
-			// @todo: Performance: Triangulating lots of building polygons is quite slow.  We could easily do this 
+			// @todo: Performance: Triangulating lots of building polygons is quite slow.  We could easily do this
 			//        as part of the import process and store tessellated geometry instead of doing this at load time.
 			bool WindsClockwise;
 			if( FPolygonTools::TriangulatePolygon( Building.BuildingPoints, TempIndices, /* Out */ TriangulatedVertexIndices, /* Out */ WindsClockwise ) )
@@ -313,7 +313,7 @@ void UStreetMapComponent::GenerateMesh()
 					else if (Building.BuildingLevels > 0) {
 						BuildingFillZ = (float)Building.BuildingLevels * BuildingLevelFloorFactor;
 					}
-				}		
+				}
 
 				// Top of building
 				{
@@ -516,7 +516,7 @@ void UStreetMapComponent::UpdateNavigationIfNeeded()
 {
 	if (bCanEverAffectNavigation || bNavigationRelevant)
 	{
-		UNavigationSystem::UpdateComponentInNavOctree(*this);
+		FNavigationSystem::UpdateComponentData(*this);
 	}
 }
 
@@ -627,4 +627,3 @@ FString UStreetMapComponent::GetStreetMapAssetName() const
 {
 	return StreetMap != nullptr ? StreetMap->GetName() : FString(TEXT("NONE"));
 }
-
